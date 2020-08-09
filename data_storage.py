@@ -1,7 +1,8 @@
 """
     Модуль работы с хранилищами данных
 """
-import redis
+import asyncio
+import aioredis
 import error
 from decimal import Decimal
 
@@ -17,6 +18,24 @@ class MetaSingleton(type):
         return cls._instances[cls]
 
 
+async def create_redis_storage(host, port, db):
+    """
+        Создание объекта подключения к хранилищу данных Redis
+        Params:
+            host - хост сервера
+            port - порт сервера
+            db - база даннных
+        Return:
+            RedisStorage - объект хранилища данных Redis
+    """
+    try:
+        pool = await aioredis.create_redis_pool(address=(host, port), db=db)
+        await pool.ping()
+        return RedisStorage(pool)
+    except Exception as exc:
+        raise error.ServiceError(f"При создании подключения к серверу Redis возникла проблема: {exc}")
+
+
 class RedisStorage(metaclass=MetaSingleton):
     """
         Хранилище данных на основе Redis
@@ -25,17 +44,32 @@ class RedisStorage(metaclass=MetaSingleton):
         """
             Инициализация хранилища данных
             Params:
-                host - хост сервера Redis
-                port - порт сервера Redis
-                db - номер базы
+                host - хост сервера
+                port - порт сервера
+                db - база даннных
+        """
+        loop = asyncio.get_event_loop()
+        self._redis = loop.run_until_complete(RedisStorage._create_redis_pool(host, port, db))
+
+    @staticmethod
+    async def _create_redis_pool(host, port, db):
+        """
+            Создание пула подключений к серверу Redis
+            Params:
+                host - хост сервера
+                port - порт сервера
+                db - база даннных
+            Return:
+                redis_pool - пул подключений к серверу Redis
         """
         try:
-            self._redis = redis.Redis(host=host, port=port, db=db)
-            self._redis.ping()
+            pool = await aioredis.create_redis_pool(address=(host, port), db=int(db))
+            await pool.ping()
+            return pool
         except Exception as exc:
-            raise error.ServiceError(f"Не удалось подключиться к серверу Redis: {exc}")
+            raise error.ServiceError(f"При создании подключения к серверу Redis возникла проблема: {exc}")
 
-    def update_course(self, base_currency, target_currency_data):
+    async def update_course(self, base_currency, target_currency_data):
         """
             Обновление курса валюты.
             Params:
@@ -46,14 +80,13 @@ class RedisStorage(metaclass=MetaSingleton):
                     Пример: {"USD": "73.6376", "EUR": "87.1722"}
         """
         try:
-            with self._redis.pipeline() as pipe:
-                pipe.multi()
-                pipe.hmset(base_currency, target_currency_data)
-                pipe.execute()
+            transaction = self._redis.multi_exec()
+            transaction.hmset(base_currency, target_currency_data)
+            await transaction.execute()
         except Exception as exc:
             raise error.ServiceError(f"При обновлении данных возникла ошибка: {exc}")
 
-    def save_course(self, base_currency, target_currency_data):
+    async def save_course(self, base_currency, target_currency_data):
         """
             Сохранение курса валюты с предварительной очисткой старых данных.
             Params:
@@ -64,15 +97,14 @@ class RedisStorage(metaclass=MetaSingleton):
                     Пример: {"USD": "73.6376", "EUR": "87.1722"}
         """
         try:
-            with self._redis.pipeline() as pipe:
-                pipe.multi()
-                pipe.delete(base_currency)
-                pipe.hmset(base_currency, target_currency_data)
-                pipe.execute()
+            transaction = self._redis.multi_exec()
+            transaction.delete(base_currency)
+            transaction.hmset_dict(base_currency, target_currency_data)
+            await transaction.execute()
         except Exception as exc:
             raise error.ServiceError(f"При сохранении данных возникла ошибка: {exc}")
 
-    def get_course(self, base_currency, target_currency):
+    async def get_course(self, base_currency, target_currency):
         """
             Получение курса валют из БД
             Params:
@@ -82,8 +114,8 @@ class RedisStorage(metaclass=MetaSingleton):
                 Decimal - текущий курс для указанной валюты
         """
         try:
-            binary_data = self._redis.hget(base_currency, target_currency)
-            result = Decimal(binary_data.decode("utf-8")) if binary_data else Decimal()
+            data = await self._redis.hget(base_currency, target_currency, encoding="utf-8")
+            result = Decimal(data) if data else Decimal()
             return result
         except Exception as exc:
             raise error.ServiceError(f"При получении данных возникла ошибка {exc}")
