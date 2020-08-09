@@ -45,7 +45,7 @@ class RedisStorage(metaclass=MetaSingleton):
                 redis_pool - пул подключений к серверу Redis
         """
         try:
-            pool = await aioredis.create_redis_pool(address=(host, port), db=int(db))
+            pool = await aioredis.create_redis_pool(address=(host, port), db=db)
             await pool.ping()
             return pool
         except Exception as exc:

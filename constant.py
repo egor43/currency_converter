@@ -23,4 +23,4 @@ REDIS_PORT = config["REDIS"]["Port"]
 REDIS_DB = config["REDIS"]["Db"]
 
 # Рабочее хранилище данных
-DATA_STORAGE = data_storage.RedisStorage(REDIS_HOST, REDIS_PORT, REDIS_DB)
+DATA_STORAGE = data_storage.RedisStorage(REDIS_HOST, REDIS_PORT, int(REDIS_DB))
