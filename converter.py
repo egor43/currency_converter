@@ -23,6 +23,8 @@ async def convert_currency(amount, currency_from, currency_to):
     elif currency_to == constant.BASE_CURRENCY:
         course = await get_course_value(currency_from)
         result = amount * course
+    elif currency_from == currency_to:
+        result = amount
     else:
         # Если ни одна из указанных валют не является базовой, нужно привести денежные единицы в базовую валюту
         amount = await convert_currency(amount, currency_from, constant.BASE_CURRENCY)
@@ -46,7 +48,7 @@ async def get_course_value(currency):
     return course
 
 
-async def save_course(courses_data, delete_old_data=True):
+async def save_course(courses_data, save_old_data=True):
     """
         Сохранение курсов валют
         Params:
@@ -54,9 +56,9 @@ async def save_course(courses_data, delete_old_data=True):
                 key - код названия валюты
                 value - курс указанной валюты
                 Пример: {"USD": "73.6376", "EUR": "87.1722"}
-            delete_old_data - логическое значение необходимости очистки старых значений
+            delete_old_data - логическое значение необходимости сохранения старых значений
     """
-    if delete_old_data:
-       await constant.DATA_STORAGE.save_course(constant.BASE_CURRENCY, courses_data)
-    else:
+    if save_old_data:
         await constant.DATA_STORAGE.update_course(constant.BASE_CURRENCY, courses_data)
+    else:
+        await constant.DATA_STORAGE.save_course(constant.BASE_CURRENCY, courses_data)
