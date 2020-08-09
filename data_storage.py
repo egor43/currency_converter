@@ -81,7 +81,7 @@ class RedisStorage(metaclass=MetaSingleton):
         """
         try:
             transaction = self._redis.multi_exec()
-            transaction.hmset(base_currency, target_currency_data)
+            transaction.hmset_dict(base_currency, target_currency_data)
             await transaction.execute()
         except Exception as exc:
             raise error.ServiceError(f"При обновлении данных возникла ошибка: {exc}")
