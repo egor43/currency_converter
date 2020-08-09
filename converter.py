@@ -44,3 +44,19 @@ def get_course_value(currency):
     if not course:
         raise error.ConverterError(f"Не удалось получить курс валюты {currency}")
     return course
+
+
+def save_course(courses_data, delete_old_data=True):
+    """
+        Сохранение курсов валют
+        Params:
+            courses_data - данные о курсах валют, которые требуется сохранить
+                key - код названия валюты
+                value - курс указанной валюты
+                Пример: {"USD": "73.6376", "EUR": "87.1722"}
+            delete_old_data - логическое значение необходимости очистки старых значений
+    """
+    if delete_old_data:
+        constant.DATA_STORAGE.save_course(constant.BASE_CURRENCY, courses_data)
+    else:
+        constant.DATA_STORAGE.update_course(constant.BASE_CURRENCY, courses_data)
