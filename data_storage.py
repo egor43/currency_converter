@@ -18,24 +18,6 @@ class MetaSingleton(type):
         return cls._instances[cls]
 
 
-async def create_redis_storage(host, port, db):
-    """
-        Создание объекта подключения к хранилищу данных Redis
-        Params:
-            host - хост сервера
-            port - порт сервера
-            db - база даннных
-        Return:
-            RedisStorage - объект хранилища данных Redis
-    """
-    try:
-        pool = await aioredis.create_redis_pool(address=(host, port), db=db)
-        await pool.ping()
-        return RedisStorage(pool)
-    except Exception as exc:
-        raise error.ServiceError(f"При создании подключения к серверу Redis возникла проблема: {exc}")
-
-
 class RedisStorage(metaclass=MetaSingleton):
     """
         Хранилище данных на основе Redis
