@@ -57,8 +57,10 @@ async def save_course(courses_data, save_old_data=True):
                 value - курс указанной валюты
                 Пример: {"USD": "73.6376", "EUR": "87.1722"}
             delete_old_data - логическое значение необходимости сохранения старых значений
+        Result:
+            True - если сохранение данных прошло успешно
     """
     if save_old_data:
-        await constant.DATA_STORAGE.update_course(constant.BASE_CURRENCY, courses_data)
+        return await constant.DATA_STORAGE.update_course(constant.BASE_CURRENCY, courses_data)
     else:
-        await constant.DATA_STORAGE.save_course(constant.BASE_CURRENCY, courses_data)
+        return await constant.DATA_STORAGE.save_course(constant.BASE_CURRENCY, courses_data)
