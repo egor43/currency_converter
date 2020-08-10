@@ -46,4 +46,5 @@ app.add_routes([web.get('/convert', convert_handler),
                 web.post('/database', database_handler)])
 
 if __name__ == '__main__':
-    web.run_app(app)
+    logger.info("Server starting...")
+    web.run_app(app, port=2001)
