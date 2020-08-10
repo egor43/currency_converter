@@ -2,8 +2,7 @@
     Модуль серверной части сервиса конвертации валют
 """
 from aiohttp import web
-from decimal import Decimal
-from converter import converter
+import service_api
 
 async def convert_handler(request):
     """
@@ -16,8 +15,8 @@ async def convert_handler(request):
     currency_from = request.rel_url.query["from"]
     currency_to = request.rel_url.query["to"]
     amount = request.rel_url.query["amount"]
-    result = await converter.convert_currency(Decimal(amount), currency_from, currency_to)
-    return web.Response(status=200, text=str(result))
+    result = await service_api.convert(currency_from, currency_to, amount)
+    return web.json_response(data=result)
 
 
 async def database_handler(request):
@@ -28,10 +27,10 @@ async def database_handler(request):
         Return:
             Response - ответ на запрос
     """
-    merge_status = request.rel_url.query["merge"]
+    merge_mode = request.rel_url.query["merge"]
     courses_data = await request.json()
-    await converter.save_course(courses_data, True if merge_status == "1" else False)
-    return web.Response(status=200, text="Ok")
+    result = await service_api.merge(merge_mode, courses_data)
+    return web.json_response(data=result)
 
 
 app = web.Application()
