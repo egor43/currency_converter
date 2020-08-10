@@ -60,11 +60,14 @@ class RedisStorage(metaclass=MetaSingleton):
                     key - код названия валюты
                     value - курс указанной валюты
                     Пример: {"USD": "73.6376", "EUR": "87.1722"}
+            Return:
+                True - если процесс обновления прошел успешно, иначе генерируется ошибка
         """
         try:
             transaction = self._redis.multi_exec()
             transaction.hmset_dict(base_currency, target_currency_data)
             await transaction.execute()
+            return True
         except Exception as exc:
             raise error.ServiceError(f"При обновлении данных возникла ошибка: {exc}")
 
@@ -77,12 +80,15 @@ class RedisStorage(metaclass=MetaSingleton):
                     key - код названия валюты
                     value - курс указанной валюты
                     Пример: {"USD": "73.6376", "EUR": "87.1722"}
+            Return:
+                True - если процесс сохранения прошел успешно, иначе генерируется ошибка
         """
         try:
             transaction = self._redis.multi_exec()
             transaction.delete(base_currency)
             transaction.hmset_dict(base_currency, target_currency_data)
             await transaction.execute()
+            return True
         except Exception as exc:
             raise error.ServiceError(f"При сохранении данных возникла ошибка: {exc}")
 
