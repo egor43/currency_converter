@@ -2,8 +2,8 @@
     Константы сервиса конвертации валют
 """
 import configparser
-import data_storage
-import error
+from . import data_storage
+from . import error
 
 
 config = configparser.ConfigParser()

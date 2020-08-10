@@ -1,8 +1,8 @@
 """
     Модуль реализующий функционал конвертации валюты
 """
-import constant
-import error
+from . import constant
+from . import error
 from decimal import Decimal
 from decimal import ROUND_HALF_UP
 

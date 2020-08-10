@@ -3,7 +3,7 @@
 """
 import asyncio
 import aioredis
-import error
+from . import error
 from decimal import Decimal
 
 
