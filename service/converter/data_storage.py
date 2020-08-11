@@ -22,30 +22,28 @@ class RedisStorage(metaclass=MetaSingleton):
     """
         Хранилище данных на основе Redis
     """
-    def __init__(self, host, port, db):
+    def __init__(self, host, port):
         """
             Инициализация хранилища данных
             Params:
                 host - хост сервера
                 port - порт сервера
-                db - база даннных
         """
         loop = asyncio.get_event_loop()
-        self._redis = loop.run_until_complete(RedisStorage._create_redis_pool(host, port, db))
+        self._redis = loop.run_until_complete(RedisStorage._create_redis_pool(host, port))
 
     @staticmethod
-    async def _create_redis_pool(host, port, db):
+    async def _create_redis_pool(host, port):
         """
             Создание пула подключений к серверу Redis
             Params:
                 host - хост сервера
                 port - порт сервера
-                db - база даннных
             Return:
                 redis_pool - пул подключений к серверу Redis
         """
         try:
-            pool = await aioredis.create_redis_pool(address=(host, port), db=db)
+            pool = await aioredis.create_redis_pool(address=(host, port))
             await pool.ping()
             return pool
         except Exception as exc:
