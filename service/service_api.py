@@ -1,7 +1,6 @@
 """
     Модуль предоставляет API сервиса конвертации валют
 """
-import json
 from decimal import Decimal
 from converter import converter
 from converter import error

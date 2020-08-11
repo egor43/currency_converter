@@ -17,7 +17,7 @@ class ServiceError(Exception):
         self.detail_msg = detail_msg
         self.error_code = error_code
         super().__init__(detail_msg)
-    
+
     def to_dict(self):
         """
             Преобразование объекта ошибки в словарь
