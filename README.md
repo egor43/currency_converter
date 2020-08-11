@@ -28,10 +28,10 @@
 - **GET convert**
 ```json
 {
-  		"from": STR_VALUE,
-  		"to": STR_VALUE,
-  		"amount": FLOAT_VALUE,
-  		"converted_amount": FLOAT_VALUE
+  		"from": "USD",
+  		"to": "EUR",
+  		"amount": 1.0,
+  		"converted_amount": 0.8447
 }
 ```
 Где:
@@ -43,7 +43,7 @@
 - **POST merge**
 ```json
 {
-  		"result": True
+  		"result": true
 }
 ```
 Где:
@@ -53,8 +53,8 @@
 В случае ошибок работы севиса возвращается код ответа 200 и json описание ошибки
 ```json
 {
-		"error_code": NUMBER,
-		"detail_msg": STR_VALUE 
+		"error_code": 0,
+		"detail_msg": "Внутренняя ошибка сервиса" 
 }
 ```
 Где:
