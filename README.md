@@ -3,7 +3,7 @@
 
 ## API
 Конвертация валют:
-- **GET** /convert?from=RUR&to=USD&amount=42
+- **GET** /convert?from=RUB&to=USD&amount=42
 Где:
 	- **from**=CHAR_CODE - валюта из которой необходимо провести конвертацию
 	- **to**=CHAR_CODE - валюта в которую необходимо конвертировать
